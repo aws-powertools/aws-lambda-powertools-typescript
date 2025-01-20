@@ -381,6 +381,6 @@
     }
   },
   "devDependencies": {
-    "@anatine/zod-mock": "^3.13.3"
+    "@anatine/zod-mock": "^3.13.5"
   }
 }
