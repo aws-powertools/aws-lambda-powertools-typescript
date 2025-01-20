@@ -4,7 +4,7 @@ import { TestEvents } from './utils.js';
 
 describe('Lambda ', () => {
   it('should parse lambda event', () => {
-    const lambdaFunctionUrlEvent = TestEvents.apiGatewayProxyV2Event;
+    const lambdaFunctionUrlEvent = TestEvents.lambdaFunctionUrlEvent;
 
     expect(LambdaFunctionUrlSchema.parse(lambdaFunctionUrlEvent)).toEqual(
       lambdaFunctionUrlEvent

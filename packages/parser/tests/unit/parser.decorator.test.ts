@@ -8,7 +8,7 @@ import { ParseError } from '../../src/errors.js';
 import { parser } from '../../src/index.js';
 import { EventBridgeSchema } from '../../src/schemas/index.js';
 import type { EventBridgeEvent, ParsedResult } from '../../src/types';
-import { TestEvents, TestSchema } from './schema/utils';
+import { TestEvents, TestSchema, getTestEvent } from './schema/utils';
 
 describe('Parser Decorator', () => {
   const customEventBridgeSchema = EventBridgeSchema.extend({
@@ -90,7 +90,10 @@ describe('Parser Decorator', () => {
 
   it('should parse custom schema with envelope event', async () => {
     const customPayload = generateMock(TestSchema);
-    const testEvent = TestEvents.eventBridgeEvent as EventBridgeEvent;
+    const testEvent = getTestEvent<EventBridgeEvent>({
+      eventsPath: 'eventbridge',
+      filename: 'base',
+    });
     testEvent.detail = customPayload;
 
     const resp = await lambda.handlerWithSchemaAndEnvelope(
@@ -119,7 +122,10 @@ describe('Parser Decorator', () => {
 
   it('should parse and call private async method', async () => {
     const customPayload = generateMock(TestSchema);
-    const testEvent = TestEvents.eventBridgeEvent as EventBridgeEvent;
+    const testEvent = getTestEvent<EventBridgeEvent>({
+      eventsPath: 'eventbridge',
+      filename: 'base',
+    });
     testEvent.detail = customPayload;
 
     const resp = await lambda.handlerWithParserCallsAnotherMethod(
@@ -159,7 +165,10 @@ describe('Parser Decorator', () => {
 
   it('should parse event with envelope and safeParse', async () => {
     const testEvent = generateMock(TestSchema);
-    const event = TestEvents.eventBridgeEvent as EventBridgeEvent;
+    const event = getTestEvent<EventBridgeEvent>({
+      eventsPath: 'eventbridge',
+      filename: 'base',
+    });
     event.detail = testEvent;
 
     const resp = await lambda.harndlerWithEnvelopeAndSafeParse(

@@ -1,9 +1,0 @@
-{
-  "isAuthorized": true,
-  "resolverContext": {
-    "name": "Foo Man",
-    "balance": 100
-  },
-  "deniedFields": ["Mutation.createEvent"],
-  "ttlOverride": 15
-}

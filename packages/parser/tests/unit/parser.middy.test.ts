@@ -8,7 +8,7 @@ import { EventBridgeEnvelope, SqsEnvelope } from '../../src/envelopes';
 import { parser } from '../../src/middleware/parser.js';
 import { SqsSchema } from '../../src/schemas';
 import type { EventBridgeEvent, ParsedResult, SqsEvent } from '../../src/types';
-import { TestEvents, TestSchema } from './schema/utils';
+import { TestEvents, TestSchema, getTestEvent } from './schema/utils';
 
 describe('Middleware: parser', () => {
   type TestEvent = z.infer<typeof TestSchema>;
@@ -182,7 +182,10 @@ describe('Middleware: parser', () => {
 
     it('should return event when envelope and safeParse are true', async () => {
       const detail = generateMock(TestSchema);
-      const event = TestEvents.eventBridgeEvent as EventBridgeEvent;
+      const event = getTestEvent<EventBridgeEvent>({
+        eventsPath: 'eventbridge',
+        filename: 'base',
+      });
 
       event.detail = detail;
 
@@ -212,7 +215,10 @@ describe('Middleware: parser', () => {
     });
 
     it('should return error when envelope provided, safeParse is true, and schema does not match', async () => {
-      const event = TestEvents.eventBridgeEvent as EventBridgeEvent;
+      const event = getTestEvent<EventBridgeEvent>({
+        eventsPath: 'eventbridge',
+        filename: 'base',
+      });
 
       const middyfiedHandler = middy()
         .use(

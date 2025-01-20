@@ -1,5 +1,8 @@
 import { generateMock } from '@anatine/zod-mock';
-import type { APIGatewayProxyEventV2 } from 'aws-lambda';
+import type {
+  APIGatewayProxyEventV2,
+  LambdaFunctionURLEvent,
+} from 'aws-lambda';
 import { describe, expect, it } from 'vitest';
 import { ZodError } from 'zod';
 import { ParseError } from '../../../src';
@@ -22,7 +25,7 @@ describe('Lambda Functions Url ', () => {
 
     it('should throw when no body provided', () => {
       const testEvent =
-        TestEvents.apiGatewayProxyV2Event as APIGatewayProxyEventV2;
+        TestEvents.lambdaFunctionUrlEvent as LambdaFunctionURLEvent;
       testEvent.body = undefined;
 
       expect(() =>

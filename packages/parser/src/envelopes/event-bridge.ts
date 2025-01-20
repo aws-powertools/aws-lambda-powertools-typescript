@@ -1,8 +1,8 @@
-import type { ZodSchema, z } from 'zod';
+import type { ZodError, ZodSchema, z } from 'zod';
 import { ParseError } from '../errors.js';
 import { EventBridgeSchema } from '../schemas/index.js';
 import type { ParsedResult } from '../types/index.js';
-import { Envelope, envelopeDiscriminator } from './envelope.js';
+import { envelopeDiscriminator } from './envelope.js';
 
 /**
  * Envelope for EventBridge schema that extracts and parses data from the `detail` key.
@@ -14,34 +14,41 @@ export const EventBridgeEnvelope = {
    */
   [envelopeDiscriminator]: 'object' as const,
   parse<T extends ZodSchema>(data: unknown, schema: T): z.infer<T> {
-    return Envelope.parse(EventBridgeSchema.parse(data).detail, schema);
+    const extendedSchema = EventBridgeSchema.extend({
+      detail: schema,
+    });
+    try {
+      const parsed = extendedSchema.parse(data);
+      return parsed.detail;
+    } catch (error) {
+      throw new ParseError('Failed to parse EventBridge envelope', {
+        cause: error as ZodError,
+      });
+    }
   },
 
-  safeParse<T extends ZodSchema>(data: unknown, schema: T): ParsedResult<unknown, z.infer<T>> {
-    const parsedEnvelope = EventBridgeSchema.safeParse(data);
+  safeParse<T extends ZodSchema>(
+    data: unknown,
+    schema: T
+  ): ParsedResult<unknown, z.infer<T>> {
+    const extendedSchema = EventBridgeSchema.extend({
+      detail: schema,
+    });
 
-    if (!parsedEnvelope.success) {
+    const parsedResult = extendedSchema.safeParse(data);
+    if (!parsedResult.success) {
       return {
         success: false,
         error: new ParseError('Failed to parse EventBridge envelope', {
-          cause: parsedEnvelope.error,
+          cause: parsedResult.error,
         }),
         originalEvent: data,
       };
     }
 
-    const parsedDetail = Envelope.safeParse(parsedEnvelope.data.detail, schema);
-
-    if (!parsedDetail.success) {
-      return {
-        success: false,
-        error: new ParseError('Failed to parse EventBridge envelope detail', {
-          cause: parsedDetail.error,
-        }),
-        originalEvent: data,
-      };
-    }
-
-    return parsedDetail;
+    return {
+      success: true,
+      data: parsedResult.data.detail,
+    };
   },
 };
